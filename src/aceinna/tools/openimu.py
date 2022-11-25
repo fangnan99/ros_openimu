@@ -42,16 +42,16 @@ class OpenIMU(object):
         if datatype == ('S1'):
             pi = 3.14159265359
             grav = 9.80665
-            xaccel = struct.unpack('h', bytes(readback[0:2]))[0]*grav*20/(2**16)
-            yaccel = struct.unpack('h', bytes(readback[2:4]))[0]*grav*20/(2**16)
-            zaccel = struct.unpack('h', bytes(readback[4:6]))[0]*grav*20/(2**16)
-            xrate = struct.unpack('h', bytes(readback[6:8]))[0]*7*pi/(2**16)
-            yrate = struct.unpack('h', bytes(readback[8:10]))[0]*7*pi/(2**16)
-            zrate = struct.unpack('h', bytes(readback[10:12]))[0]*7*pi/(2**16)
-            xratetemp = struct.unpack('h', bytes(readback[12:14]))[0]*200/(2**16)
-            yratetemp = struct.unpack('h', bytes(readback[14:16]))[0]*200/(2**16)
-            zratetemp = struct.unpack('h', bytes(readback[16:18]))[0]*200/(2**16)
-            temp = struct.unpack('h', bytes(readback[18:20]))[0]*200/(2**16)
+            xaccel = struct.unpack('>h', bytes(readback[0:2]))[0]*grav*20/(2**16)
+            yaccel = struct.unpack('>h', bytes(readback[2:4]))[0]*grav*20/(2**16)
+            zaccel = struct.unpack('>h', bytes(readback[4:6]))[0]*grav*20/(2**16)
+            xrate = struct.unpack('>h', bytes(readback[6:8]))[0]*7*pi/(2**16)
+            yrate = struct.unpack('>h', bytes(readback[8:10]))[0]*7*pi/(2**16)
+            zrate = struct.unpack('>h', bytes(readback[10:12]))[0]*7*pi/(2**16)
+            xratetemp = struct.unpack('>h', bytes(readback[12:14]))[0]*200/(2**16)
+            yratetemp = struct.unpack('>h', bytes(readback[14:16]))[0]*200/(2**16)
+            zratetemp = struct.unpack('>h', bytes(readback[16:18]))[0]*200/(2**16)
+            temp = struct.unpack('>h', bytes(readback[18:20]))[0]*200/(2**16)
             time_s = struct.unpack('H', bytes(readback[20:22]))[0]*15.259022
             imudata = [xaccel, yaccel, zaccel, xrate, yrate, zrate, xratetemp, yratetemp, zratetemp, temp, time_s]
         if datatype == ('z1'):
