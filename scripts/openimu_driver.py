@@ -54,10 +54,27 @@ if __name__ == "__main__":
 
     while not rospy.is_shutdown():
         #read the data - call the get imu measurement data
-        packetType = 'z1'                       # z1, s1, a1, a2, e1, e2
+        packetType = 'S1'                       # z1, s1, a1, a2, e1, e2
         readback = openimu_wrp.readimu(packetType)
 
-        if packetType == 'z1':
+        if packetType == 'S1':
+            imu_msg.header.stamp = rospy.Time(secs=0, nsecs= int(readback[10] * 1000000000))
+            imu_msg.header.seq = seq
+            imu_msg.header.frame_id = frame_id
+            imu_msg.linear_acceleration.x = readback[0]
+            imu_msg.linear_acceleration.y = readback[1]
+            imu_msg.linear_acceleration.z = readback[2]
+            imu_msg.angular_velocity.x = readback[3]
+            imu_msg.angular_velocity.y = readback[4]
+            imu_msg.angular_velocity.z = readback[5]
+            imu_msg.orientation.x = readback[6]
+            imu_msg.orientation.y = readback[7]
+            imu_msg.orientation.z = readback[8]
+            imu_msg.orientation.w = readback[9]
+            pub_imu.publish(imu_msg)
+
+
+        elif packetType == 'z1':
             #publish the data m/s^2 and convert deg/s to rad/s
             imu_msg.header.stamp = rospy.Time.now()
             imu_msg.header.frame_id = frame_id

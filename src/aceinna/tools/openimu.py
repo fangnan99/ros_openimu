@@ -38,6 +38,21 @@ class OpenIMU(object):
 
     def getdata(self, datatype):
         readback = self.imudevice.read_untils_have_data(datatype)
+
+        if datatype == ('S1'):
+            pi = 3.14159265359
+            xaccel = struct.unpack('H', readback[0:2])[0]*20/(2**16)
+            yaccel = struct.unpack('H', readback[2:4])[0]*20/(2**16)
+            zaccel = struct.unpack('H', readback[4:6])[0]*20/(2**16)
+            xrate = struct.unpack('H', readback[6:8])[0]*7*pi/(2**16)
+            yrate = struct.unpack('H', readback[8:10])[0]*7*pi/(2**16)
+            zrate = struct.unpack('H', readback[10:12])[0]*7*pi/(2**16)
+            xratetemp = struct.unpack('H', readback[12:14])[0]*200/(2**16)
+            yratetemp = struct.unpack('H', readback[14:16])[0]*200/(2**16)
+            zratetemp = struct.unpack('H', readback[16:18])[0]*200/(2**16)
+            temp = struct.unpack('H', readback[18:20])[0]*200/(2**16)
+            time_s = struct.unpack('H', readback[20:22])[0]*15.259022
+            imudata = [xaccel, yaccel, zaccel, xrate, yrate, zrate, xratetemp, yratetemp, zratetemp, temp, time_s]
         if datatype == ('z1'):
             timeraw = (readback[0:4]) #time in ms
             time_ms = struct.unpack('I', bytes(timeraw))[0]
