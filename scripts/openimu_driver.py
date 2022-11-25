@@ -43,7 +43,7 @@ if __name__ == "__main__":
     imu_msg = Imu()             # IMU data
     mag_msg = MagneticField()   # Magnetometer data
     
-    rate = rospy.Rate(10)   # 10Hz
+    rate = rospy.Rate(100)   # 10Hz
     seq = 0
     frame_id = 'OpenIMU'
     convert_rads = math.pi /180
@@ -58,7 +58,7 @@ if __name__ == "__main__":
         readback = openimu_wrp.readimu(packetType)
 
         if packetType == 'S1':
-            imu_msg.header.stamp = rospy.Time(secs=0, nsecs= int(readback[10] * 1000000000))
+            imu_msg.header.stamp = rospy.Time.now()
             imu_msg.header.seq = seq
             imu_msg.header.frame_id = frame_id
             imu_msg.linear_acceleration.x = readback[0]
@@ -67,10 +67,6 @@ if __name__ == "__main__":
             imu_msg.angular_velocity.x = readback[3]
             imu_msg.angular_velocity.y = readback[4]
             imu_msg.angular_velocity.z = readback[5]
-            imu_msg.orientation.x = readback[6]
-            imu_msg.orientation.y = readback[7]
-            imu_msg.orientation.z = readback[8]
-            imu_msg.orientation.w = readback[9]
             pub_imu.publish(imu_msg)
 
 
