@@ -332,6 +332,7 @@ def read_untils_have_data_through_serial_port(communicator, packet_type, read_le
         data_buffer.extend(data_buffer_per_time)
 
         response = _parse_buffer(data_buffer)
+        # print("Try: ", trys, "\n", data_buffer, "\n", response)
         if response['parsed']:
             matched_packet = next(
                 (packet['data'] for packet in response['result']

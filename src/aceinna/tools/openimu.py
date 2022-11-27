@@ -3,6 +3,7 @@ import struct
 from ..models.args import DetectorArgs
 from ..framework.communicator import CommunicatorFactory
 from ..devices.openimu.uart_provider import Provider
+from time import time
 
 class OpenIMU(object):
     '''
@@ -37,9 +38,15 @@ class OpenIMU(object):
         self.communicator.close()
 
     def getdata(self, datatype):
-        readback = self.imudevice.read_untils_have_data(datatype)
+        read_len = 3    # Overall highly efficient, because of 2-byte CRC this diesn't throw away any data
+        if datatype == ('S1'):
+            # This force message to be published exactly at the specified rate
+            read_len = 31   # Exact number of packet length of S1 packets. 2 header + 2 type + 1 len + 24 data + 2 CRC.
+        readback = self.imudevice.read_untils_have_data(datatype, read_length=read_len, retry_times=100)
 
         if datatype == ('S1'):
+            # print("READINGS")
+            # print(readback)
             pi = 3.14159265359
             grav = 9.80665
             xaccel = struct.unpack('>h', bytes(readback[0:2]))[0]*grav*20/(2**16)
@@ -54,7 +61,7 @@ class OpenIMU(object):
             temp = struct.unpack('>h', bytes(readback[18:20]))[0]*200/(2**16)
             time_s = struct.unpack('H', bytes(readback[20:22]))[0]*15.259022
             imudata = [xaccel, yaccel, zaccel, xrate, yrate, zrate, xratetemp, yratetemp, zratetemp, temp, time_s]
-        if datatype == ('z1'):
+        elif datatype == ('z1'):
             timeraw = (readback[0:4]) #time in ms
             time_ms = struct.unpack('I', bytes(timeraw))[0]
             xaccelraw = (readback[4:8]) #xaccel
@@ -77,7 +84,7 @@ class OpenIMU(object):
             zmag = struct.unpack('f', bytes(zmagraw))[0]
             imudata =[time_ms, xaccel, yaccel, zaccel, xrate, yrate, zrate, xmag, ymag, zmag]
 
-        if datatype == ('s1'):
+        elif datatype == ('s1'):
             time_ms = struct.unpack('I', bytes(readback[0:4]))[0] #unin32
             time_s = struct.unpack('d', bytes(readback[4:12]))[0]  #double
             xaccel = struct.unpack('f', bytes(readback[12:16]))[0]
@@ -92,7 +99,7 @@ class OpenIMU(object):
             temp_c = struct.unpack('f', bytes(readback[48:52]))[0]
             imudata =[time_ms, time_s, xaccel, yaccel, zaccel, xrate, yrate, zrate, xmag, ymag, zmag, temp_c]
 
-        if datatype == ('a1'):
+        elif datatype == ('a1'):
             time_ms = struct.unpack('I', bytes(readback[0:4]))[0] #unin32
             time_s = struct.unpack('d', bytes(readback[4:12]))[0]  #double
             roll = struct.unpack('f', bytes(readback[12:16]))[0]
@@ -108,7 +115,7 @@ class OpenIMU(object):
             turnSw = struct.unpack('B', bytes(readback[46:47]))[0]   #uint8
             imudata =[time_ms, time_s, roll, pitch, xrate, yrate, zrate, xaccel, yaccel, zaccel, opMode, linAccSw, turnSw]
 
-        if datatype == ('a2'):
+        elif datatype == ('a2'):
             time_ms = struct.unpack('I', bytes(readback[0:4]))[0] #unin32
             time_s = struct.unpack('d', bytes(readback[4:12]))[0]  #double
             roll = struct.unpack('f', bytes(readback[12:16]))[0]
@@ -122,7 +129,7 @@ class OpenIMU(object):
             zaccel = struct.unpack('f', bytes(readback[44:48]))[0]
             imudata =[time_ms, time_s, roll, pitch, heading, xrate, yrate, zrate, xaccel, yaccel, zaccel]
 
-        if datatype == ('e1'):
+        elif datatype == ('e1'):
             time_ms = struct.unpack('I', bytes(readback[0:4]))[0] #unin32
             time_s = struct.unpack('d', bytes(readback[4:12]))[0]  #double
             roll = struct.unpack('f', bytes(readback[12:16]))[0]
@@ -145,7 +152,7 @@ class OpenIMU(object):
             turnSw = struct.unpack('B', bytes(readback[74:75]))[0]   #uint8
             imudata =[time_ms, time_s, roll, pitch, heading, xaccel, yaccel, zaccel, xrate, yrate, zrate, xgybias, ygybias, zgybias, xmag, ymag, zmag, opMode, linAccSw, turnSw]
 
-        if datatype == ('e2'):
+        elif datatype == ('e2'):
             time_ms = struct.unpack('I', bytes(readback[0:4]))[0] #unin32
             time_s = struct.unpack('d', bytes(readback[4:12]))[0]  #double
             roll = struct.unpack('f', bytes(readback[12:16]))[0]
