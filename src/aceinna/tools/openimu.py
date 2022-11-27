@@ -39,9 +39,12 @@ class OpenIMU(object):
 
     def getdata(self, datatype):
         read_len = 3    # Overall highly efficient, because of 2-byte CRC this diesn't throw away any data
-        if datatype == ('S1'):
-            # This force message to be published exactly at the specified rate
-            read_len = 31   # Exact number of packet length of S1 packets. 2 header + 2 type + 1 len + 24 data + 2 CRC.
+
+        # Sometimes works well but not stable
+        # if datatype == ('S1'):
+        #     # This force message to be published exactly at the specified rate
+        #     read_len = 31   # Exact number of packet length of S1 packets. 2 header + 2 type + 1 len + 24 data + 2 CRC.
+        
         readback = self.imudevice.read_untils_have_data(datatype, read_length=read_len, retry_times=100)
 
         if datatype == ('S1'):
